@@ -1,5 +1,6 @@
 import { MotionConfig } from 'framer-motion'
 import { useEffect } from 'react'
+import { useAnalytics } from './analytics'
 import { Navbar } from './components/Navbar'
 import { ScrollProgress } from './components/ScrollProgress'
 import { SpaceBackground } from './components/SpaceBackground'
@@ -12,6 +13,8 @@ import { Projects } from './sections/Projects'
 import { Skills } from './sections/Skills'
 
 export default function App() {
+  useAnalytics()
+
   useEffect(() => {
     document.title = content.meta.title
     document.documentElement.lang = content.meta.lang
