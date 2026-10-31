@@ -23,8 +23,9 @@ export function useAnalytics() {
 
 /**
  * Bir sayfanın toplam görüntülenme sayısı. GoatCounter ayarlarında herkese açık sayaç izni
- * ("Allow adding visitor counts on your website") açık olmalı. Sayaç kapalıysa, sayfanın henüz
- * kaydı yoksa ya da istek başarısızsa `null` döner.
+ * ("Allow adding visitor counts on your website") açık olmalı. Sayfanın henüz kaydı yoksa 0,
+ * sayaç kapalıysa ya da istek başarısızsa `null` döner (o zaman sayı hiç gösterilmez).
+ * GoatCounter bu yanıtları birkaç dakika önbellekte tuttuğu için sayı gecikmeli güncellenir.
  */
 export function useViewCount(path: string) {
   const [count, setCount] = useState<number | null>(null)
@@ -33,11 +34,12 @@ export function useViewCount(path: string) {
     if (!base) return
     const controller = new AbortController()
     fetch(`${base}/counter/${encodeURIComponent(path)}.json`, { signal: controller.signal })
-      .then((res) => (res.ok ? res.json() : null))
+      .then((res) => (res.ok ? res.json() : res.status === 404 ? { count: '0' } : null))
       .then((data: { count?: string } | null) => {
+        if (!data) return
         // GoatCounter sayıyı binlik ayraçlı metin olarak döndürür ("1,234")
-        const n = Number(String(data?.count ?? '').replace(/\D/g, ''))
-        if (n > 0) setCount(n)
+        const n = Number(String(data.count ?? '').replace(/\D/g, ''))
+        if (Number.isFinite(n)) setCount(n)
       })
       .catch(() => {})
     return () => controller.abort()
