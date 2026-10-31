@@ -21,7 +21,6 @@ export interface Post {
   tags: string[]
   draft: boolean
   html: string
-  readingMinutes: number
 }
 
 const files = import.meta.glob<string>('./posts/*.md', { query: '?raw', import: 'default', eager: true })
@@ -42,7 +41,6 @@ function parse(raw: string) {
 function toPost(path: string, raw: string): Post {
   const slug = path.split('/').pop()!.replace(/\.md$/, '')
   const { meta, body } = parse(raw)
-  const words = body.replace(/```[\s\S]*?```/g, '').split(/\s+/).filter(Boolean).length
   return {
     slug,
     title: meta.title || slug,
@@ -51,7 +49,6 @@ function toPost(path: string, raw: string): Post {
     tags: meta.tags ? meta.tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
     draft: meta.draft === 'true',
     html: marked.parse(body, { async: false }),
-    readingMinutes: Math.max(1, Math.round(words / 200)),
   }
 }
 

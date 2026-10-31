@@ -21,12 +21,12 @@ export function blogMeta(path: string) {
   return { title: `${post.title} — ${content.profile.name}`, description: post.summary || t.metaDescription }
 }
 
-function PostMeta({ post, views }: { post: Post; views?: number | null }) {
+/** Tarih ve görüntülenme sayısı. Sayı tarayıcıda sonradan gelir; ön-render edilen HTML'de yer almaz. */
+function PostMeta({ post }: { post: Post }) {
+  const views = useViewCount(`/blog/${post.slug}/`)
   return (
     <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs tracking-wider text-muted uppercase">
       {post.date && <time dateTime={post.date}>{formatDate(post.date)}</time>}
-      <span aria-hidden="true">·</span>
-      <span>{t.readingTime(post.readingMinutes)}</span>
       {views != null && (
         <>
           <span aria-hidden="true">·</span>
@@ -103,15 +103,13 @@ function BackLink() {
 }
 
 function PostView({ post }: { post: Post }) {
-  // Sayı tarayıcıda sonradan gelir; ön-render edilen HTML'de yer almaz.
-  const views = useViewCount(`/blog/${post.slug}/`)
   return (
     // Uzun metin yıldızların ve takımyıldız çizgilerinin üzerinde okunaklı kalsın diye bulanık bir zemin (çerçevesiz).
     <article className="bar mx-auto max-w-3xl px-5 py-10 sm:px-10 sm:py-12">
       <Reveal>
         <BackLink />
         <div className="mt-10">
-          <PostMeta post={post} views={views} />
+          <PostMeta post={post} />
         </div>
         <h1 className="mt-4 text-4xl leading-tight font-bold text-fg sm:text-5xl">{post.title}</h1>
         {post.summary && <p className="mt-5 text-lg text-muted">{post.summary}</p>}

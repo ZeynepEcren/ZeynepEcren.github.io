@@ -92,7 +92,6 @@ const tr = {
       empty: 'Henüz yazı yok. Yakında burada olacak.',
       read: 'Yazıyı oku',
       allPosts: 'Tüm yazılar',
-      readingTime: (minutes: number) => `${minutes} dk okuma`,
       views: (count: number) => `${count.toLocaleString('tr-TR')} görüntülenme`,
       notFoundTitle: 'Yazı bulunamadı',
       notFoundMessage: 'Bu adreste bir yazı yok; taşınmış ya da kaldırılmış olabilir.',
