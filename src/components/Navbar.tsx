@@ -15,8 +15,13 @@ const links = [
 ]
 const ids = links.map((l) => l.id)
 
-export function Navbar() {
-  const active = useActiveSection(ids)
+/** `page="blog"`: bölüm bağlantıları ana sayfaya döner (`/#about`), Blog bağlantısı etkin görünür. */
+export function Navbar({ page = 'home' }: { page?: 'home' | 'blog' }) {
+  const onHome = page === 'home'
+  const prefix = onHome ? '' : '/'
+  const section = useActiveSection(ids)
+  const active = onHome ? section : 'blog'
+  const items = [...links.map((l) => ({ ...l, href: `${prefix}#${l.id}` })), { id: 'blog', label: nav.blog, href: '/blog/' }]
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { scrollY } = useScroll()
@@ -38,7 +43,7 @@ export function Navbar() {
         }`}
       >
         <a
-          href="#top"
+          href={`${prefix}#top`}
           aria-label={`${content.profile.name} — ${nav.home}`}
           className="flex h-10 items-center"
         >
@@ -46,10 +51,10 @@ export function Navbar() {
         </a>
 
         <ul className="hidden items-center gap-1 md:flex">
-          {links.map((l) => (
+          {items.map((l) => (
             <li key={l.id}>
               <a
-                href={`#${l.id}`}
+                href={l.href}
                 aria-current={active === l.id ? 'true' : undefined}
                 className={`relative isolate px-4 py-2 text-sm font-medium transition-colors ${
                   active === l.id ? 'text-fg' : 'text-muted hover:text-fg'
@@ -92,10 +97,10 @@ export function Navbar() {
             exit={{ opacity: 0, y: -12 }}
             className="bar mx-auto mt-2 flex max-w-6xl flex-col p-2 md:hidden"
           >
-            {links.map((l) => (
+            {items.map((l) => (
               <li key={l.id}>
                 <a
-                  href={`#${l.id}`}
+                  href={l.href}
                   onClick={() => setOpen(false)}
                   aria-current={active === l.id ? 'true' : undefined}
                   className={`block px-4 py-3 text-base font-medium ${

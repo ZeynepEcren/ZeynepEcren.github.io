@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="tr" data-theme="space">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="%PAGE_DESCRIPTION%" />
+    <meta name="theme-color" content="#03040a" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+        <title>%PAGE_TITLE%</title>
+
+    <!-- Blog sayfalarının şablonu. %PAGE_*% ve %SITE_URL% her yazı için derlemede doldurulur (scripts/prerender.mjs). -->
+    <link rel="canonical" href="%SITE_URL%%PAGE_PATH%" />
+    <meta property="og:type" content="%PAGE_TYPE%" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:site_name" content="Zeynep Ecren İkinci" />
+    <meta property="og:title" content="%PAGE_TITLE%" />
+    <meta property="og:description" content="%PAGE_DESCRIPTION%" />
+    <meta property="og:url" content="%SITE_URL%%PAGE_PATH%" />
+    <meta property="og:image" content="%SITE_URL%/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Yıldızlı gökyüzü üzerinde Zeynep Ecren İkinci — Bilgisayar Mühendisliği Öğrencisi · Yazılım Geliştirici" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="%PAGE_TITLE%" />
+    <meta name="twitter:description" content="%PAGE_DESCRIPTION%" />
+    <meta name="twitter:image" content="%SITE_URL%/og-image.png" />
+    <script src="/theme-init.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/blog-entry.tsx"></script>
+  </body>
+</html>

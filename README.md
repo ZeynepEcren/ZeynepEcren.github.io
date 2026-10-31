@@ -25,6 +25,9 @@ src/
 │   ├── themes.css             ← tema renkleri ve başlık fontu (CSS değişkenleri)
 │   └── ThemeProvider.tsx      ← tema durumu + localStorage
 ├── sections/                  ← Hero, About, Skills, Projects, Contact, Footer
+├── blog/
+│   ├── posts/*.md             ← BLOG YAZILARI (her dosya bir yazı)
+│   └── posts.ts               ← yazıları okur, Markdown'ı HTML'e çevirir
 ├── components/
 │   ├── three/SpaceScene.tsx   ← 3B yıldız alanı (Three.js, ayrı parça olarak yüklenir)
 │   ├── SpaceBackground.tsx    ← sahneyi uygun anda yükleyen sabit arka plan
@@ -33,8 +36,8 @@ src/
 │   ├── icons/BrandIcons.tsx   ← GitHub / LinkedIn / Küre / e-posta ikonları
 │   └── Navbar, ThemeSwitcher, Reveal, TiltCard, Magnetic, Modal, ScrollProgress …
 ├── hooks/                     ← useTheme, useMediaQuery, useTypewriter, useActiveSection, useIdle
-├── App.tsx · NotFound.tsx     ← ana sayfa ve 404 sayfası
-├── main.tsx · not-found.tsx   ← istemci girişleri (ön-render edilmiş HTML'i hydrate eder)
+├── App.tsx · BlogApp.tsx · NotFound.tsx        ← ana sayfa, blog sayfaları ve 404 sayfası
+├── main.tsx · blog-entry.tsx · not-found.tsx   ← istemci girişleri (ön-render edilmiş HTML'i hydrate eder)
 ├── entry-server.tsx           ← build sırasında statik HTML üretir
 └── index.css                  ← Tailwind + ortak bileşen sınıfları
 public/
@@ -42,7 +45,8 @@ public/
 ├── og-image.png               ← paylaşım önizlemesi görseli (1200×630)
 ├── favicon.svg
 └── Zeynep_Ecren_Ikinci_CV.pdf ← "CV'yi indir" bağlantısının dosyası
-scripts/prerender.mjs          ← ön-render HTML'i ve site adresini dist/ içine yerleştirir
+blog/index.html                ← blog sayfalarının HTML şablonu
+scripts/prerender.mjs          ← ön-render HTML'i ve site adresini dist/ içine yerleştirir, her yazı için sayfa üretir
 ```
 
 ## İçerik nasıl düzenlenir?
@@ -62,6 +66,26 @@ Tüm metinler **`src/data/content.ts`** içindedir.
 - **CV:** `public/Zeynep_Ecren_Ikinci_CV.pdf` dosyasını aynı adla değiştirmek yeterli. PDF'i yüklemeden önce telefon numarası gibi kişisel bilgilerin metin katmanında da kalmadığını kontrol edin; üstünü kapatmak yetmez.
 - **Proje kapakları:** `components/ProjectCovers.tsx` içinde proje `id`'sine göre eşlenir. Yeni bir proje için buraya bir SVG bileşeni ekleyin ya da projeye `image` alanıyla bir görsel yolu verin.
 - **Yetenek logoları:** `sections/Skills.tsx` içindeki eşlemeden gelir ([Devicon](https://devicon.dev)); logosu olmayanlar için Lucide ikonu kullanılır.
+
+## Blog yazısı nasıl eklenir?
+
+1. `src/blog/posts/` içine yeni bir `.md` dosyası ekleyin. Dosya adı adres olur: `ilk-yazim.md` → `/blog/ilk-yazim/`. Türkçe karakter ve boşluk yerine `-` kullanın.
+2. Dosyanın en üstüne yazının bilgilerini yazın:
+   ```md
+   ---
+   title: Yazının başlığı
+   date: 2026-11-01
+   summary: Listede ve paylaşım kartında görünen kısa özet.
+   tags: React, Three.js
+   ---
+
+   Yazının kendisi Markdown ile buradan başlar.
+   ```
+3. `main` dalına gönderin; site birkaç dakika içinde güncellenir. Bunu GitHub'ın web arayüzünden de yapabilirsiniz: **src/blog/posts → Add file → Create new file**.
+
+- `draft: true` eklenen yazılar yalnızca `npm run dev` ile görünür, yayına çıkmaz. `ornek-yazi.md` bu şekilde bir örnektir ve kullanılabilecek biçimlendirmeleri gösterir.
+- Görseller `public/blog/` içine konur ve yazıda `![açıklama](/blog/gorsel.png)` ile eklenir.
+- Her yazı derlemede kendi HTML sayfasına dönüştürülür; başlık, özet ve paylaşım kartı yazıya göre doldurulur.
 
 ## Temalar
 
