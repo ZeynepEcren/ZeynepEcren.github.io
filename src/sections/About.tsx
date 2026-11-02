@@ -1,4 +1,5 @@
 import { Info, Mail, MapPin } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { Reveal, Stagger, StaggerItem } from '../components/Reveal'
 import { SectionHeading } from '../components/SectionHeading'
 import { content } from '../data/content'
@@ -6,6 +7,27 @@ import { content } from '../data/content'
 const { profile, sections } = content
 
 export function About() {
+  // Dokunmatik cihazlarda (özellikle iOS Safari) butona dokunmak odak/hover vermediği için
+  // açık olan detay paneli ayrıca tutulur; dışarı dokununca veya Esc ile kapanır.
+  const [openStat, setOpenStat] = useState<number | null>(null)
+  const statsRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (openStat === null) return
+    const onPointerDown = (e: PointerEvent) => {
+      if (!statsRef.current?.contains(e.target as Node)) setOpenStat(null)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpenStat(null)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [openStat])
+
   return (
     <section id="about" aria-labelledby="about-title" className="relative py-24 md:py-32">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -33,6 +55,7 @@ export function About() {
             </ul>
           </Reveal>
 
+          <div ref={statsRef}>
           <Stagger className="rule mt-12 grid grid-cols-3 gap-6 pt-8">
             {sections.about.stats.map((s, i, all) => {
               const number = (
@@ -49,16 +72,24 @@ export function About() {
               // Panel, satırdaki konumuna göre hizalanır ki ekran kenarından taşmasın
               const align = i === 0 ? 'left-0' : i === all.length - 1 ? 'right-0' : 'left-1/2 -translate-x-1/2'
               const panelId = `stat-details-${i}`
+              const isOpen = openStat === i
               return (
                 <StaggerItem key={s.label} className="relative">
                   {/* Masaüstünde üzerine gelince, klavyede odaklanınca, dokunmatikte dokununca açılır */}
-                  <button type="button" aria-describedby={panelId} className="group peer cursor-help text-left">
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    onClick={() => setOpenStat(isOpen ? null : i)}
+                    className="group peer cursor-pointer touch-manipulation text-left"
+                  >
                     {number}
                   </button>
                   <div
                     id={panelId}
-                    role="tooltip"
-                    className={`bar pointer-events-none invisible absolute top-full z-20 mt-4 w-72 max-w-[80vw] border-t border-accent px-5 py-4 opacity-0 transition-all duration-300 peer-hover:visible peer-hover:opacity-100 peer-focus-visible:visible peer-focus-visible:opacity-100 peer-focus:visible peer-focus:opacity-100 ${align}`}
+                    className={`bar absolute top-full z-20 mt-4 w-72 max-w-[80vw] border-t border-accent px-5 py-4 transition-all duration-300 peer-hover:visible peer-hover:opacity-100 peer-focus-visible:visible peer-focus-visible:opacity-100 ${
+                      isOpen ? 'visible opacity-100' : 'pointer-events-none invisible opacity-0'
+                    } ${align}`}
                   >
                     <ul className="space-y-3">
                       {s.details.map((d) => (
@@ -73,6 +104,7 @@ export function About() {
               )
             })}
           </Stagger>
+          </div>
         </div>
       </div>
     </section>
