@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useAnalytics, useViewCount } from './analytics'
 import { formatDate, getPost, posts, slugFromPath, type Post } from './blog/posts'
 import { Navbar } from './components/Navbar'
+import { Newsletter } from './components/Newsletter'
 import { Reveal, Stagger, StaggerItem } from './components/Reveal'
 import { ScrollProgress } from './components/ScrollProgress'
 import { SpaceBackground } from './components/SpaceBackground'
@@ -89,6 +90,10 @@ function PostList() {
           ))}
         </Stagger>
       )}
+
+      <Reveal>
+        <Newsletter className="mt-16" />
+      </Reveal>
     </>
   )
 }
@@ -119,6 +124,7 @@ function PostView({ post }: { post: Post }) {
       </Reveal>
       {/* Yazının içeriği kendi Markdown dosyalarımızdan gelir; dışarıdan girdi değildir. */}
       <div className="prose-blog rule mt-10 pt-10" dangerouslySetInnerHTML={{ __html: post.html }} />
+      <Newsletter inset className="mt-16" />
       <div className="rule mt-16 pt-8">
         <BackLink />
       </div>
