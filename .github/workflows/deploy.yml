@@ -5,6 +5,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      notify_slugs:
+        description: 'Abonelere elle duyurulacak yazılar (dosya adı, virgülle; ör. ilk-yazim). Boş bırakılırsa duyuru yapılmaz.'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -30,6 +35,8 @@ jobs:
         env:
           # Paylaşım önizlemesindeki adresler için (scripts/prerender.mjs)
           SITE_URL: https://zeynepecren.github.io
+          # Bülten formu (src/components/Newsletter.tsx); Settings → Secrets and variables → Actions → Variables
+          VITE_BREVO_FORM_URL: ${{ vars.BREVO_FORM_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -43,3 +50,24 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Yayın bittikten sonra yeni yazıları bülten abonelerine e-postayla duyurur (scripts/notify-subscribers.mjs).
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # önceki commit'teki yazılarla karşılaştırmak için
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/notify-subscribers.mjs
+        env:
+          SITE_URL: https://zeynepecren.github.io
+          BEFORE_SHA: ${{ github.event.before }}
+          NOTIFY_SLUGS: ${{ inputs.notify_slugs }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_LIST_ID: ${{ vars.BREVO_LIST_ID }}
+          BREVO_SENDER_EMAIL: ${{ vars.BREVO_SENDER_EMAIL }}
+          BREVO_SENDER_NAME: ${{ vars.BREVO_SENDER_NAME }}

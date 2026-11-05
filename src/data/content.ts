@@ -96,6 +96,17 @@ const tr = {
       notFoundTitle: 'Yazı bulunamadı',
       notFoundMessage: 'Bu adreste bir yazı yok; taşınmış ya da kaldırılmış olabilir.',
       draft: 'Taslak',
+      newsletter: {
+        title: 'Yeni yazılardan haberdar ol',
+        description: 'Yeni bir yazı yayınladığımda e-posta ile haber vereyim. Spam yok; istediğin zaman tek tıkla ayrılabilirsin.',
+        label: 'E-posta adresin',
+        placeholder: 'ornek@mail.com',
+        submit: 'Abone ol',
+        sending: 'Gönderiliyor…',
+        success: 'Neredeyse tamam! Gelen kutuna bir onay e-postası gönderdim; aboneliği tamamlamak için içindeki bağlantıya tıkla.',
+        invalid: 'Geçerli bir e-posta adresi gir.',
+        error: 'Bir sorun oluştu, lütfen biraz sonra tekrar dene.',
+      },
     },
     footer: {
       rights: 'Tüm hakları saklıdır.',
