@@ -87,6 +87,25 @@ Tüm metinler **`src/data/content.ts`** içindedir.
 - Görseller `public/blog/` içine konur ve yazıda `![açıklama](/blog/gorsel.png)` ile eklenir.
 - Her yazı derlemede kendi HTML sayfasına dönüştürülür; başlık, özet ve paylaşım kartı yazıya göre doldurulur.
 
+### "Bu adres zaten kayıtlı" kontrolü (Cloudflare Worker)
+
+Site statik olduğu için form, bir adresin listede olup olmadığını Brevo'ya kendisi soramaz (bunun için gizli API anahtarı gerekir). Bu yüzden iki yol vardır:
+
+- **Cloudflare servisi yoksa:** form Brevo'nun formunu kullanır; aynı tarayıcıdan aynı adresle tekrar abone olunmak istenirse "zaten abone oldun" der. Başka cihazdan gelen tekrar kaydı yakalayamaz.
+- **Cloudflare servisi varsa (önerilen):** `worker/newsletter.js` Brevo'ya sorar; adres listedeyse "Bu e-posta adresi bültene zaten kayıtlı" der, değilse onay e-postasını gönderir. Her cihazda çalışır.
+
+Kurulum (bir kez, ücretsiz):
+
+1. [dash.cloudflare.com](https://dash.cloudflare.com)'da hesap aç. **Workers & Pages → Create → Create Worker** (Hello World), ad: `bulten`, **Deploy**.
+2. **Edit code**'a gir, içeriği silip `worker/newsletter.js` dosyasının tamamını yapıştır, **Deploy**.
+3. Worker'ın **Settings → Variables and Secrets** bölümüne ekle:
+   - `BREVO_API_KEY` (tür: **Secret**) = Brevo API anahtarı (izin: Contacts)
+   - `BREVO_LIST_ID` = `3`
+   - `BREVO_DOI_TEMPLATE_ID` = Brevo → Marketing → Templates'teki onay şablonunun numarası
+   - `REDIRECT_URL` = `https://zeynepecren.github.io/blog/`
+   - `ALLOWED_ORIGIN` = `https://zeynepecren.github.io`
+4. Worker'ın adresini (`https://bulten.<hesap>.workers.dev`) GitHub'da **Variables**'a `NEWSLETTER_API_URL` olarak ekle ve siteyi yeniden yayınla.
+
 ## Temalar
 
 | Tema | Görünüm |
