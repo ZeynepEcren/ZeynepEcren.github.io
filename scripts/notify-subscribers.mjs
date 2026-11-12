@@ -17,6 +17,7 @@
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { buildEmail, parsePost } from './newsletter-email.mjs'
 
 const POSTS_DIR = 'src/blog/posts'
 const env = process.env
@@ -61,26 +62,6 @@ function findNewSlugs() {
     .map((f) => f.replace(/\.md$/, ''))
 }
 
-const escape = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
-
-function emailHtml({ title, summary, url }) {
-  return `<!doctype html>
-<html lang="tr"><body style="margin:0;padding:0;background:#f3ece0;font-family:Helvetica,Arial,sans-serif;color:#1c2238">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#fffaf2">
-<tr><td style="padding:32px">
-<p style="margin:0 0 12px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#a63a24">Yeni blog yazısı</p>
-<h1 style="margin:0 0 16px;font-size:26px;line-height:1.25;font-family:Georgia,serif">${escape(title)}</h1>
-${summary ? `<p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#4a4f63">${escape(summary)}</p>` : ''}
-<a href="${url}" style="display:inline-block;padding:12px 22px;background:#a63a24;color:#ffffff;text-decoration:none;font-weight:bold">Yazıyı oku</a>
-</td></tr>
-<tr><td style="padding:20px 32px;border-top:1px solid #e6dccb;font-size:12px;line-height:1.6;color:#7a7f90">
-Bu e-postayı Zeynep Ecren İkinci’nin blog bültenine abone olduğun için aldın.
-<a href="{{ unsubscribe }}" style="color:#7a7f90">Abonelikten çık</a>
-</td></tr>
-</table></td></tr></table></body></html>`
-}
-
 async function brevo(path, init = {}) {
   const res = await fetch(`https://api.brevo.com/v3${path}`, {
     ...init,
@@ -117,7 +98,7 @@ async function main() {
   for (const slug of slugs) {
     const file = `${POSTS_DIR}/${slug}.md`
     if (!existsSync(file)) throw new Error(`Yazı bulunamadı: ${file}`)
-    const meta = parse(readFileSync(file, 'utf8'))
+    const { meta, body } = parsePost(readFileSync(file, 'utf8'))
     if (meta.draft === 'true') {
       console.log(`${slug}: taslak, atlandı.`)
       continue
@@ -125,6 +106,7 @@ async function main() {
     const title = meta.title || slug
     const url = `${siteUrl}/blog/${encodeURIComponent(slug)}/`
     const name = `blog:${slug}`
+    const email = buildEmail({ meta, body, url, siteUrl })
 
     if (dryRun) {
       console.log(`[deneme] "${title}" → liste ${env.BREVO_LIST_ID} (${url})`)
@@ -141,10 +123,10 @@ async function main() {
         method: 'POST',
         body: JSON.stringify({
           name,
-          subject: `Yeni yazı: ${title}`,
-          previewText: meta.summary || undefined,
+          subject: email.subject,
+          previewText: email.previewText || undefined,
           sender: { name: env.BREVO_SENDER_NAME || 'Zeynep Ecren İkinci', email: env.BREVO_SENDER_EMAIL },
-          htmlContent: emailHtml({ title, summary: meta.summary, url }),
+          htmlContent: email.html,
           recipients: { listIds: [Number(env.BREVO_LIST_ID)] },
         }),
       })
