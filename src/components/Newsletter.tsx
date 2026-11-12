@@ -31,7 +31,7 @@ export function Newsletter({ className = '', inset = false }: { className?: stri
     const data = new FormData()
     data.append('EMAIL', value)
     data.append('email_address_check', '') // Brevo'nun bot tuzağı: boş kalmalı
-    data.append('locale', 'tr')
+    data.append('locale', 'en') // Brevo formunun dili (Türkçe seçeneği yok); sitedeki mesajlar Türkçe
     try {
       // Brevo farklı bir alan adında; yanıt okunamaz (no-cors), ağ hatası yoksa istek ulaşmıştır.
       await fetch(`${FORM_URL}${FORM_URL.includes('?') ? '&' : '?'}isAjax=1`, { method: 'POST', body: data, mode: 'no-cors' })
