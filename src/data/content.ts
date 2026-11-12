@@ -105,6 +105,8 @@ const tr = {
         sending: 'Gönderiliyor…',
         success: 'Neredeyse tamam! Gelen kutuna bir onay e-postası gönderdim; aboneliği tamamlamak için içindeki bağlantıya tıkla.',
         invalid: 'Geçerli bir e-posta adresi gir.',
+        already: 'Bu e-posta adresi bültene zaten kayıtlı.',
+        alreadyLocal: 'Bu adresle zaten abone oldun. Onay e-postasını bulamadıysan spam klasörüne de bak.',
         error: 'Bir sorun oluştu, lütfen biraz sonra tekrar dene.',
       },
     },

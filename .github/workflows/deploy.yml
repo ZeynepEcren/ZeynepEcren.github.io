@@ -37,6 +37,8 @@ jobs:
           SITE_URL: https://zeynepecren.github.io
           # Bülten formu (src/components/Newsletter.tsx); Settings → Secrets and variables → Actions → Variables
           VITE_BREVO_FORM_URL: ${{ vars.BREVO_FORM_URL }}
+          # Varsa Cloudflare'deki bülten servisi kullanılır ("zaten kayıtlı" kontrolü için; worker/newsletter.js)
+          VITE_NEWSLETTER_API_URL: ${{ vars.NEWSLETTER_API_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
