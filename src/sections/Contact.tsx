@@ -1,7 +1,8 @@
 import { ArrowDown, ArrowUpRight, MapPin } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { Feedback } from '../components/Feedback'
 import { SocialIcon } from '../components/icons/BrandIcons'
-import { Stagger, StaggerItem } from '../components/Reveal'
+import { Reveal, Stagger, StaggerItem } from '../components/Reveal'
 import { SectionHeading } from '../components/SectionHeading'
 import { content } from '../data/content'
 
@@ -78,6 +79,10 @@ export function Contact() {
             </a>
           </StaggerItem>
         </Stagger>
+
+        <Reveal>
+          <Feedback className="rule mt-16 max-w-3xl pt-12" />
+        </Reveal>
       </div>
     </section>
   )

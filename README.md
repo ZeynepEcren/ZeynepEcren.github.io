@@ -106,6 +106,12 @@ Kurulum (bir kez, ücretsiz):
    - `ALLOWED_ORIGIN` = `https://zeynepecren.github.io`
 4. Worker'ın adresini (`https://bulten.<hesap>.workers.dev`) GitHub'da **Variables**'a `NEWSLETTER_API_URL` olarak ekle ve siteyi yeniden yayınla.
 
+## Görüş ve öneri formu
+
+İletişim bölümünde ve her blog yazısının sonunda bir görüş/öneri formu vardır (`src/components/Feedback.tsx`). Mesajlar [Web3Forms](https://web3forms.com) üzerinden e-postana gelir (ücretsiz: ayda 250 mesaj). Yazı sayfasından gelen mesajlarda hangi yazıdan geldiği yazar; ad ve e-posta isteğe bağlıdır, e-posta yazılırsa "Yanıtla" ile doğrudan o kişiye cevap verilir.
+
+Kurulum: web3forms.com'da mesajların gelmesini istediğin e-postayı girip **Create Access Key** de; gelen anahtarı GitHub'da **Settings → Secrets and variables → Actions → Variables**'a `WEB3FORMS_ACCESS_KEY` olarak ekle ve siteyi yeniden yayınla. Anahtar tanımlı değilse form gösterilmez. (Bu anahtar gizli değildir; yalnızca mesajların hangi adrese gideceğini belirtir.)
+
 ## Temalar
 
 | Tema | Görünüm |
