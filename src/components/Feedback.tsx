@@ -5,11 +5,10 @@ import { content } from '../data/content'
 const t = content.ui.feedback
 
 /**
- * Web3Forms erişim anahtarı (gizli değildir; yalnızca mesajların hangi e-postaya gideceğini belirtir).
- * Derlemede VITE_WEB3FORMS_KEY ortam değişkeninden gelir; tanımlı değilse form gösterilmez.
+ * Mesajlar Cloudflare'deki site servisine (worker/site-api.js, /feedback) gider; servis Brevo ile e-postalar.
+ * Adres derlemede VITE_SITE_API_URL ortam değişkeninden gelir; tanımlı değilse form gösterilmez.
  */
-const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_KEY as string | undefined
-const ENDPOINT = 'https://api.web3forms.com/submit'
+const SITE_API = (import.meta.env.VITE_SITE_API_URL as string | undefined)?.replace(/\/+$/, '')
 
 type TypeId = keyof typeof t.types
 type Status = 'idle' | 'sending' | 'success' | 'error' | 'emptyMessage' | 'invalidEmail'
@@ -24,7 +23,7 @@ const fieldClass =
   'w-full border-b border-border bg-transparent px-1 py-3 text-base text-fg placeholder:text-muted/70 focus:border-accent focus:outline-none'
 const labelClass = 'block font-mono text-xs tracking-wider text-muted uppercase'
 
-/** Görüş ve öneri formu: mesajlar Web3Forms üzerinden e-postaya gelir. */
+/** Görüş ve öneri formu: mesajlar site servisi üzerinden e-postaya gelir. */
 export function Feedback({ post, className = '' }: Props) {
   const id = useId()
   const [type, setType] = useState<TypeId>('gorus')
@@ -34,7 +33,7 @@ export function Feedback({ post, className = '' }: Props) {
   const [botcheck, setBotcheck] = useState(false)
   const [status, setStatus] = useState<Status>('idle')
 
-  if (!ACCESS_KEY) return null
+  if (!SITE_API) return null
 
   const reset = () => {
     setMessage('')
@@ -49,23 +48,21 @@ export function Feedback({ post, className = '' }: Props) {
     setStatus('sending')
     const where = post ? `Blog: ${post.title}` : 'Ana sayfa'
     try {
-      const res = await fetch(ENDPOINT, {
+      const res = await fetch(`${SITE_API}/feedback`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          access_key: ACCESS_KEY,
-          subject: `[Site] ${t.types[type]} — ${where}`,
-          from_name: name.trim() || 'Site ziyaretçisi',
-          ...(email.trim() ? { email: email.trim(), replyto: email.trim() } : {}),
-          Konu: t.types[type],
-          Sayfa: post ? `${location.origin}/blog/${post.slug}/` : location.origin + '/',
-          Ad: name.trim() || '—',
-          Mesaj: message.trim(),
-          botcheck, // Bot tuzağı: görünmeyen kutu işaretliyse Web3Forms mesajı atar
+          type,
+          message: message.trim(),
+          name: name.trim(),
+          email: email.trim(),
+          page: post ? `${location.origin}/blog/${post.slug}/` : `${location.origin}/`,
+          where,
+          botcheck, // Bot tuzağı: görünmeyen kutu işaretliyse servis mesajı göndermez
         }),
       })
-      const data = (await res.json().catch(() => ({}))) as { success?: boolean }
-      setStatus(res.ok && data.success ? 'success' : 'error')
+      const data = (await res.json().catch(() => ({}))) as { status?: string }
+      setStatus(res.ok && data.status === 'sent' ? 'success' : 'error')
     } catch {
       setStatus('error')
     }

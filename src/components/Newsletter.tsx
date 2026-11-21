@@ -6,12 +6,13 @@ const t = content.ui.blog.newsletter
 
 /**
  * Abonelik iki yoldan birini kullanır (adresler derlemede ortam değişkenlerinden gelir; ikisi de yoksa form gösterilmez):
- *  - VITE_NEWSLETTER_API_URL: Cloudflare'deki bülten servisi (worker/newsletter.js). Adresin zaten kayıtlı olup
+ *  - VITE_SITE_API_URL: Cloudflare'deki site servisi (worker/site-api.js, /subscribe). Adresin zaten kayıtlı olup
  *    olmadığını Brevo'ya sorar, değilse onay e-postasını gönderir.
  *  - VITE_BREVO_FORM_URL: Brevo'nun abonelik formu (…sibforms.com/serve/…). Yanıtı okunamadığı için "zaten kayıtlı"
  *    kontrolü yalnızca bu tarayıcıda daha önce abone olunan adresler için yapılabilir.
  */
-const API_URL = import.meta.env.VITE_NEWSLETTER_API_URL as string | undefined
+const SITE_API = (import.meta.env.VITE_SITE_API_URL as string | undefined)?.replace(/\/+$/, '')
+const API_URL = SITE_API ? `${SITE_API}/subscribe` : undefined
 const FORM_URL = import.meta.env.VITE_BREVO_FORM_URL as string | undefined
 
 type Status = 'idle' | 'sending' | 'success' | 'error' | 'invalid' | 'already' | 'alreadyLocal'

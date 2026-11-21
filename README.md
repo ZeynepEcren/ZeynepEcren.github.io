@@ -87,30 +87,27 @@ Tüm metinler **`src/data/content.ts`** içindedir.
 - Görseller `public/blog/` içine konur ve yazıda `![açıklama](/blog/gorsel.png)` ile eklenir.
 - Her yazı derlemede kendi HTML sayfasına dönüştürülür; başlık, özet ve paylaşım kartı yazıya göre doldurulur.
 
-### "Bu adres zaten kayıtlı" kontrolü (Cloudflare Worker)
+### Site servisi (Cloudflare Worker)
 
-Site statik olduğu için form, bir adresin listede olup olmadığını Brevo'ya kendisi soramaz (bunun için gizli API anahtarı gerekir). Bu yüzden iki yol vardır:
+Site statik olduğu için gizli bir anahtar gerektiren iki iş, küçük bir Cloudflare servisinde (`worker/site-api.js`) yapılır. Brevo API anahtarı yalnızca orada durur; servis yalnızca sitenin adresinden gelen istekleri kabul eder.
 
-- **Cloudflare servisi yoksa:** form Brevo'nun formunu kullanır; aynı tarayıcıdan aynı adresle tekrar abone olunmak istenirse "zaten abone oldun" der. Başka cihazdan gelen tekrar kaydı yakalayamaz.
-- **Cloudflare servisi varsa (önerilen):** `worker/newsletter.js` Brevo'ya sorar; adres listedeyse "Bu e-posta adresi bültene zaten kayıtlı" der, değilse onay e-postasını gönderir. Her cihazda çalışır.
+- **`/subscribe`:** Bülten kaydı. Adres listede zaten kayıtlıysa "Bu e-posta adresi bültene zaten kayıtlı" der ve onay e-postası göndermez; değilse onay e-postasını gönderir. Servis yoksa form Brevo'nun formunu kullanır ve tekrar kaydı yalnızca aynı tarayıcıda yakalar.
+- **`/feedback`:** Görüş ve öneri formu (iletişim bölümü ve her blog yazısının sonu, `src/components/Feedback.tsx`). Mesaj Brevo ile e-postana gelir; konu satırında türü ve geldiği sayfa, gönderen e-posta yazdıysa "Yanıtla" doğrudan ona gider. Servis yoksa form gösterilmez.
 
 Kurulum (bir kez, ücretsiz):
 
-1. [dash.cloudflare.com](https://dash.cloudflare.com)'da hesap aç. **Workers & Pages → Create → Create Worker** (Hello World), ad: `bulten`, **Deploy**.
-2. **Edit code**'a gir, içeriği silip `worker/newsletter.js` dosyasının tamamını yapıştır, **Deploy**.
-3. Worker'ın **Settings → Variables and Secrets** bölümüne ekle:
-   - `BREVO_API_KEY` (tür: **Secret**) = Brevo API anahtarı (izin: Contacts)
+1. [dash.cloudflare.com](https://dash.cloudflare.com)'da hesap aç. **Workers & Pages → Create → Create Worker** (Hello World), ad: `site-api`, **Deploy**.
+2. **Edit code**'a gir, içeriği silip `worker/site-api.js` dosyasının tamamını yapıştır, **Deploy**. (Bu dosya değişirse aynı şekilde yeniden yapıştırılır.)
+3. Brevo'da bu servis için yeni bir API anahtarı oluştur; izinler: **Contacts** ve **Transactional emails**.
+4. Worker'ın **Settings → Variables and Secrets** bölümüne ekle:
+   - `BREVO_API_KEY` (tür: **Secret**) = 3. adımdaki anahtar
    - `BREVO_LIST_ID` = `3`
    - `BREVO_DOI_TEMPLATE_ID` = Brevo → Marketing → Templates'teki onay şablonunun numarası
+   - `BREVO_SENDER_EMAIL` = Brevo'da doğrulanmış gönderici adresi
+   - `FEEDBACK_TO_EMAIL` = görüş/öneri mesajlarının geleceği adres
    - `REDIRECT_URL` = `https://zeynepecren.github.io/blog/`
    - `ALLOWED_ORIGIN` = `https://zeynepecren.github.io`
-4. Worker'ın adresini (`https://bulten.<hesap>.workers.dev`) GitHub'da **Variables**'a `NEWSLETTER_API_URL` olarak ekle ve siteyi yeniden yayınla.
-
-## Görüş ve öneri formu
-
-İletişim bölümünde ve her blog yazısının sonunda bir görüş/öneri formu vardır (`src/components/Feedback.tsx`). Mesajlar [Web3Forms](https://web3forms.com) üzerinden e-postana gelir (ücretsiz: ayda 250 mesaj). Yazı sayfasından gelen mesajlarda hangi yazıdan geldiği yazar; ad ve e-posta isteğe bağlıdır, e-posta yazılırsa "Yanıtla" ile doğrudan o kişiye cevap verilir.
-
-Kurulum: web3forms.com'da mesajların gelmesini istediğin e-postayı girip **Create Access Key** de; gelen anahtarı GitHub'da **Settings → Secrets and variables → Actions → Variables**'a `WEB3FORMS_ACCESS_KEY` olarak ekle ve siteyi yeniden yayınla. Anahtar tanımlı değilse form gösterilmez. (Bu anahtar gizli değildir; yalnızca mesajların hangi adrese gideceğini belirtir.)
+5. Worker'ın adresini (`https://site-api.<hesap>.workers.dev`) GitHub'da **Variables**'a `SITE_API_URL` olarak ekle ve siteyi yeniden yayınla.
 
 ## Temalar
 
