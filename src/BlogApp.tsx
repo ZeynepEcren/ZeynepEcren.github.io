@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useEffect } from 'react'
 import { useAnalytics, useViewCount } from './analytics'
 import { formatDate, getPost, posts, slugFromPath, type Post } from './blog/posts'
+import { Feedback } from './components/Feedback'
 import { Navbar } from './components/Navbar'
 import { Newsletter } from './components/Newsletter'
 import { Reveal, Stagger, StaggerItem } from './components/Reveal'
@@ -124,6 +125,7 @@ function PostView({ post }: { post: Post }) {
       </Reveal>
       {/* Yazının içeriği kendi Markdown dosyalarımızdan gelir; dışarıdan girdi değildir. */}
       <div className="prose-blog rule mt-10 pt-10" dangerouslySetInnerHTML={{ __html: post.html }} />
+      <Feedback post={{ title: post.title, slug: post.slug }} className="rule mt-16 pt-10" />
       <Newsletter inset className="mt-16" />
       <div className="rule mt-16 pt-8">
         <BackLink />
