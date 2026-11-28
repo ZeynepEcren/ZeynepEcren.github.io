@@ -233,7 +233,7 @@ const tr = {
       tags: ['Next.js', 'React Three Fiber', 'Three.js', 'Supabase'],
       image: '',
       github: 'https://github.com/ZeynepEcren/astro-journey',
-      demo: 'https://astrojourney.netlify.app',
+      demo: 'https://astro-journey-sable.vercel.app',
     },
     {
       id: 'psycoai',
